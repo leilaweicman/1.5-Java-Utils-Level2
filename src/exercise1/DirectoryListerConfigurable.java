@@ -1,30 +1,37 @@
 package exercise1;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Properties;
 
 public class DirectoryListerConfigurable {
 
-    private static final String OUTPUT_FILE = "exercise3" + File.separator + "output.txt";
-
     public static void main(String[] args) {
-        if (args.length != 1) {
-            System.out.println("Please provide the path to a directory as argument.");
+        Properties props = new Properties();
+
+        try (FileInputStream fis = new FileInputStream("config.properties")) {
+            props.load(fis);
+        } catch (IOException e) {
+            System.out.println("Error reading configuration file.");
             return;
         }
 
-        File dir = new File(args[0]);
+        String directory = props.getProperty("directory");
+        String outputFile = props.getProperty("outputFile");
+
+        File dir = new File(directory);
 
         if (!dir.exists() || !dir.isDirectory()) {
             System.out.println("The provided path is not a valid directory.");
             return;
         }
 
-        try (PrintWriter writer = new PrintWriter(OUTPUT_FILE)) {
+        try (PrintWriter writer = new PrintWriter(outputFile)) {
             listDirectoryRecursive(dir, 0, writer);
             System.out.println("Directory contents saved to output.txt");
         } catch (IOException e) {
